@@ -4,18 +4,9 @@ import org.bouncycastle.util.encoders.Hex;
 
 public class SM4Utils {
 
-	private String charset = "GBK";
 	private String secretKey;
 	private String iv;
-	private boolean hexString = false;
-	
-	public String getCharset() {
-		return charset;
-	}
-
-	public void setCharset(String charset) {
-		this.charset = charset;
-	}
+	private boolean hexString = true;
 
 	public String getSecretKey() {
 		return secretKey;
@@ -41,22 +32,23 @@ public class SM4Utils {
 		this.iv = iv;
 	}
 
-	public String encryptECB(String plainText) {
+	public String ecbEncrypt(String plainText) {
 		try {
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_ENCRYPT;
+			ctx.mode = SM4.ENCRYPT;
 
-			byte[] keyBytes;
+			byte[] keyBytes, dataBytes;
 			if (hexString) {
 				keyBytes = Hex.decode(secretKey);
+				dataBytes = Hex.decode(plainText);
 			} else {
 				keyBytes = secretKey.getBytes();
+				dataBytes = plainText.getBytes();
 			}
 
 			SM4 sm4 = new SM4();
-			sm4.sm4_setkey_enc(ctx, keyBytes);
-			byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText.getBytes(charset));
+			sm4.setEncryptKey(ctx, keyBytes);
+			byte[] encrypted = sm4.ecbPadCrypt(ctx, dataBytes);
 			return Hex.toHexString(encrypted);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,48 +56,49 @@ public class SM4Utils {
 		}
 	}
 
-	public String decryptECB(String cipherText) {
+	public String ecbDecrypt(String cipherText) {
 		try {
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_DECRYPT;
+			ctx.mode = SM4.DECRYPT;
 
-			byte[] keyBytes;
+			byte[] keyBytes, dataBytes;
 			if (hexString) {
 				keyBytes = Hex.decode(secretKey);
+				dataBytes = Hex.decode(cipherText);
 			} else {
 				keyBytes = secretKey.getBytes();
+				dataBytes = cipherText.getBytes();
 			}
 
 			SM4 sm4 = new SM4();
-			sm4.sm4_setkey_dec(ctx, keyBytes);
-			byte[] decrypted = sm4.sm4_crypt_ecb(ctx, Hex.decode(cipherText));
-			return new String(decrypted, charset);
+			sm4.setDecryptKey(ctx, keyBytes);
+			byte[] decrypted = sm4.ecbPadCrypt(ctx, dataBytes);
+			return Hex.toHexString(decrypted);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public String encryptCBC(String plainText) {
+	public String cbcEncrypt(String plainText) {
 		try {
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_ENCRYPT;
+			ctx.mode = SM4.ENCRYPT;
 
-			byte[] keyBytes;
-			byte[] ivBytes;
+			byte[] keyBytes, ivBytes, dataBytes;
 			if (hexString) {
 				keyBytes = Hex.decode(secretKey);
 				ivBytes = Hex.decode(iv);
+				dataBytes = Hex.decode(plainText);
 			} else {
 				keyBytes = secretKey.getBytes();
 				ivBytes = iv.getBytes();
+				dataBytes = plainText.getBytes();
 			}
 
 			SM4 sm4 = new SM4();
-			sm4.sm4_setkey_enc(ctx, keyBytes);
-			byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, plainText.getBytes(charset));
+			sm4.setEncryptKey(ctx, keyBytes);
+			byte[] encrypted = sm4.cbcPadCrypt(ctx, ivBytes, dataBytes);
 			return Hex.toHexString(encrypted);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -113,26 +106,26 @@ public class SM4Utils {
 		}
 	}
 
-	public String decryptCBC(String cipherText) {
+	public String cbcDecrypt(String cipherText) {
 		try {
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_DECRYPT;
+			ctx.mode = SM4.DECRYPT;
 
-			byte[] keyBytes;
-			byte[] ivBytes;
+			byte[] keyBytes, ivBytes, dataBytes;
 			if (hexString) {
 				keyBytes = Hex.decode(secretKey);
 				ivBytes = Hex.decode(iv);
+				dataBytes = Hex.decode(cipherText);
 			} else {
 				keyBytes = secretKey.getBytes();
 				ivBytes = iv.getBytes();
+				dataBytes = cipherText.getBytes();
 			}
 
 			SM4 sm4 = new SM4();
-			sm4.sm4_setkey_dec(ctx, keyBytes);
-			byte[] decrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, Hex.decode(cipherText));
-			return new String(decrypted, charset);
+			sm4.setDecryptKey(ctx, keyBytes);
+			byte[] decrypted = sm4.cbcPadCrypt(ctx, ivBytes, dataBytes);
+			return Hex.toHexString(decrypted);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
