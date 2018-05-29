@@ -160,8 +160,13 @@ public class SM4 {
 			}
 		} else {
 			int p = input[input.length - 1];
-			if (p <= 0 || input.length <= p) {
+			if (p <= 0 || p > 15) {
 				return input;
+			}
+			for (int i = 16 - p; i < 15; i++) {
+				if (input[i] != p) {
+					return input;
+				}
 			}
 			ret = new byte[input.length - p];
 			System.arraycopy(input, 0, ret, 0, input.length - p);

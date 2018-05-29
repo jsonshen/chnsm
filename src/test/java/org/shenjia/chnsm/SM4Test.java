@@ -16,6 +16,8 @@ public class SM4Test {
 		SM4Utils sm4 = new SM4Utils();
 		sm4.setSecretKey(key);
 		sm4.setHexString(true);
+		
+		System.out.println(sm4.ecbDecrypt("416401EF1E309E3CD0CBD42A597CD13B"));
 
 		System.out.println("ECB模式");
 		String cipherText = sm4.ecbEncrypt(plainText);
